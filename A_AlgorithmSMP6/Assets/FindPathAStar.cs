@@ -91,7 +91,11 @@ public class FindPathAStar : MonoBehaviour
     void Search(PathMarker thisNode)
     {
         if (thisNode == null) return;
-        if (thisNode.Equals(goalNode)) { done = true; return; }
+        if (thisNode.Equals(goalNode)) 
+        { 
+            done = true;
+            return; 
+        }
 
         foreach (MapLocation dir in maze.directions)
         {
@@ -115,7 +119,7 @@ public class FindPathAStar : MonoBehaviour
                 open.Add(new PathMarker(neighbor, G, H, F, pathBlock, thisNode));
         }
 
-        open = open.OrderBy(p => p.F).ThenBy(n => n.H).ToList<PathMarker>();
+        open = open.OrderBy(p => p.F).ToList<PathMarker>(); //.ThenBy(n => n.H)
         PathMarker pm = (PathMarker)open.ElementAt(0);
         closed.Add(pm);
 
@@ -157,10 +161,24 @@ public class FindPathAStar : MonoBehaviour
         
     }
 
+    void GetPath()
+    {
+        RemoveAllMarkers();
+        PathMarker begin = lastPos;
+
+        while(!startNode.Equals(begin) && begin != null)
+        {
+            Instantiate(pathP, new Vector3(begin.location.x * maze.scale, 0, begin.location.z * maze.scale), Quaternion.identity);
+            begin = begin.parent;
+        }
+
+        Instantiate(pathP, new Vector3(startNode.location.x * maze.scale, 0, startNode.location.z * maze.scale), Quaternion.identity);
+    }
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.P)) BeginSearch();
-        if (Input.GetKeyDown(KeyCode.C)) Search(lastPos);
+        if (Input.GetKeyDown(KeyCode.C) && !done) Search(lastPos);
+        if (Input.GetKeyDown(KeyCode.M)) GetPath();
     }
 }
